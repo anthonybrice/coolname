@@ -1,5 +1,0 @@
--- File: .cabal
--- Desc: Config file for cabal sandboxing
-
-constraint: mongoDB ==2.0.5
-constraint: persistent-mongoDB ==2.1.2.2
