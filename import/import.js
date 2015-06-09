@@ -1,6 +1,6 @@
 /**
- * File: import.js
- * Desc: A program that reads and imports media files into a mongodb instance.
+ * File: import/import.js
+ * Desc: A program that reads and imports media files into nodejs
  */
 
 var fs = require("fs")
