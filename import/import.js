@@ -9,14 +9,20 @@ var fs = require("fs")
   , path = require("path")
   , mm = require("musicmetadata")
   , mdb = require("mongodb")
-  , argv = require('minimist')(process.argv.slice(2))
+  , parseArgs = require("minimist")
+
+var argv = parseArgs(process.argv.slice(2),
+                    { "boolean": [ "d", "debug" ] } )
+
+var debug = argv["d"] !== undefined || argv["debug"] !== undefined
+if (debug) console.log("Debug enabled.")
 
 var dir = argv._.length >= 1
         ? argv._[0]
         : process.cwd()
 
 function handleMedia(file) {
-
+  if (debug) console.log(file + " is media")
 }
 
 /**
@@ -24,17 +30,27 @@ function handleMedia(file) {
  * directories.
  */
 function handleDirectory(err, files) {
+  if (err) {
+    console.log(err)
+    process.exit()
+  }
   files.forEach(function (file) {
     fs.lstat(file, function (err, stats) {
+      if (err) return
       if (stats.isDirectory()) {
+        if (debug) console.log(file + " is a directory")
         fs.readdir(file, handleDirectory)
-      } else if (stats.isFile()
-                && (file.endsWith("mp3")
-                   || file.endsWith("flac"))) {
-        handleMedia(file)
+        return
+      } else if (stats.isFile()) {
+        var re = /(?:\.([^.]+))?$/
+          , ext = re.exec(file)
+        if (ext === "mp3" || ext === "flac") handleMedia(file)
       }
     })
   })
 }
 
+if (debug) {
+  console.log("Beginning recursive descent from " + dir)
+}
 fs.readdir(dir, handleDirectory)
