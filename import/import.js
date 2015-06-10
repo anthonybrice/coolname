@@ -6,15 +6,17 @@
 "use strict"
 
 var dir = require("node-dir")
+  , fs = require("fs")
   , mm = require("musicmetadata")
   , mdb = require("mongodb")
   , parseArgs = require("minimist")
+  , path = require("path")
 
 var argv = parseArgs( process.argv.slice(2)
                     , { "boolean": [ "d", "debug" ] }
                     )
 
-var debug = argv["d"] !== undefined || argv["debug"] !== undefined
+var debug = argv["d"] !== false || argv["debug"] !== false
 if (debug) console.log("Debug enabled.")
 
 var dirArg = argv._.length >= 1
@@ -29,7 +31,20 @@ if (debug) {
   console.log("Beginning recursive descent from " + dirArg)
 }
 
-dir.files(dirArg, function (err, files) {
+function done() {
+  console.log("Done!")
+}
+
+function handleFiles(err, files) {
   if (err) throw err
-  if (debug) console.log(files)
-})
+  files.forEach(function (file) {
+    fs.lstat(file, function (err, stats) {
+      if (err) throw err
+      if (!stats.isFile()) return
+      var ext = path.extname(file)
+      if (ext === ".mp3" || ext === ".flac") handleMedia(file)
+    })
+  })
+}
+
+dir.files(dirArg, handleFiles)
