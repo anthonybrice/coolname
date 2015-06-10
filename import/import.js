@@ -12,6 +12,9 @@ var dir = require("node-dir")
   , parseArgs = require("minimist")
   , path = require("path")
 
+/**
+ * Main
+ */
 var argv = parseArgs( process.argv.slice(2)
                     , { "boolean": [ "d", "debug" ] }
                     )
@@ -23,18 +26,16 @@ var dirArg = argv._.length >= 1
            ? argv._[0]
            : process.cwd()
 
-function handleMedia(file) {
-  if (debug) console.log(file + " is media")
-}
-
 if (debug) {
   console.log("Beginning recursive descent from " + dirArg)
 }
 
-function done() {
-  console.log("Done!")
-}
+dir.files(dirArg, handleFiles)
 
+/**
+ * Iterates through `files` and adds each MP3 and FLAC file
+ * to a mongodb database.
+ */
 function handleFiles(err, files) {
   if (err) throw err
   files.forEach(function (file) {
@@ -47,4 +48,12 @@ function handleFiles(err, files) {
   })
 }
 
-dir.files(dirArg, handleFiles)
+/**
+ * Adds `file` to a mongodb instance.
+ */
+function handleMedia(file) {
+  var parser = mm(fs.createReadStream(file), function (err, metadata) {
+    if (err) throw err
+    if (debug) console.log("Prepping to add " + metadata)
+  })
+}
