@@ -28,14 +28,14 @@ if (debug) console.log("Debug enabled.")
 var url = "mongodb://localhost:27017/coolname"
   , db
   , coll
-mongodb.MongoClient.connect(url, function (err, database) {
-  if (err) throw err
-  console.log("Connected to coolname")
-  db = database
-  coll = db.collection("coolname")
-})
+// mongodb.MongoClient.connect(url, function (err, database) {
+//   if (err) throw err
+//   console.log("Connected to coolname")
+//   db = database
+//   coll = db.collection("coolname")
+// })
 
-while (coll === undefined) ;
+// while (coll === undefined) ;
 // MongoClient.connect(url, function (err, db) {
 //   assert.equal(null, err)
 //   if (debug) console.log("Connected to mongodb/coolname")
@@ -79,7 +79,8 @@ function handleFiles(err, files) {
 function handleMedia(file) {
   var parser = mm(fs.createReadStream(file), function (err, metadata) {
     if (err) throw err
+    console.log(metadata)
     metadata.filepath = file
-    coll.insertOne(metadata)
+    // coll.insertOne(metadata)
   })
 }
