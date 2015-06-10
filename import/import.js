@@ -9,7 +9,7 @@ var assert = require("assert")
   , dir = require("node-dir")
   , fs = require("fs")
   , mm = require("musicmetadata")
-  , mdb = require("mongodb")
+  , mongodb = require("mongodb")
   , parseArgs = require("minimist")
   , path = require("path")
 
@@ -24,6 +24,23 @@ var argv = parseArgs( process.argv.slice(2)
 
 var debug = argv["d"] !== false || argv["debug"] !== false
 if (debug) console.log("Debug enabled.")
+
+var url = "mongodb://localhost:27017/coolname"
+  , db
+  , coll
+mongodb.MongoClient.connect(url, function (err, database) {
+  if (err) throw err
+  console.log("Connected to coolname")
+  db = database
+  coll = db.collection("coolname")
+})
+
+while (coll === undefined) ;
+// MongoClient.connect(url, function (err, db) {
+//   assert.equal(null, err)
+//   if (debug) console.log("Connected to mongodb/coolname")
+//   mdb = db
+// })
 
 var dirArg = argv._.length >= 1
            ? argv._[0]
@@ -62,6 +79,7 @@ function handleFiles(err, files) {
 function handleMedia(file) {
   var parser = mm(fs.createReadStream(file), function (err, metadata) {
     if (err) throw err
-    if (debug) console.log(metadata)
+    metadata.filepath = file
+    coll.insertOne(metadata)
   })
 }
