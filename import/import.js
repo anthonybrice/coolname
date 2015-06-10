@@ -5,16 +5,19 @@
 
 "use strict"
 
-var dir = require("node-dir")
+var assert = require("assert")
+  , dir = require("node-dir")
   , fs = require("fs")
   , mm = require("musicmetadata")
   , mdb = require("mongodb")
   , parseArgs = require("minimist")
   , path = require("path")
 
-/**
- * Main
- */
+
+//////////
+// Main //
+//////////
+
 var argv = parseArgs( process.argv.slice(2)
                     , { "boolean": [ "d", "debug" ] }
                     )
@@ -25,12 +28,17 @@ if (debug) console.log("Debug enabled.")
 var dirArg = argv._.length >= 1
            ? argv._[0]
            : process.cwd()
+dirArg = path.resolve(process.cwd(), dirArg)
 
 if (debug) {
   console.log("Beginning recursive descent from " + dirArg)
 }
 
 dir.files(dirArg, handleFiles)
+
+///////////////
+// Functions //
+///////////////
 
 /**
  * Iterates through `files` and adds each MP3 and FLAC file
@@ -54,6 +62,6 @@ function handleFiles(err, files) {
 function handleMedia(file) {
   var parser = mm(fs.createReadStream(file), function (err, metadata) {
     if (err) throw err
-    if (debug) console.log("Prepping to add " + metadata)
+    if (debug) console.log(metadata)
   })
 }
