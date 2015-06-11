@@ -13,7 +13,6 @@ var assert = require("assert")
   , parseArgs = require("minimist")
   , path = require("path")
 
-
 //////////
 // Main //
 //////////
@@ -25,33 +24,29 @@ var argv = parseArgs( process.argv.slice(2)
 var debug = argv["d"] !== false || argv["debug"] !== false
 if (debug) console.log("Debug enabled.")
 
-var url = "mongodb://localhost:27017/coolname"
+var url = "mongodb://localhost"
   , db
   , coll
-// mongodb.MongoClient.connect(url, function (err, database) {
-//   if (err) throw err
-//   console.log("Connected to coolname")
-//   db = database
-//   coll = db.collection("coolname")
-// })
+mongodb.MongoClient.connect(url, function (err, database) {
+  assert.equal(null, err)
+  if (debug) console.log("Connected to coolname.")
+  db = database
+  coll = db.collection("coolname")
+  main()
+})
 
-// while (coll === undefined) ;
-// MongoClient.connect(url, function (err, db) {
-//   assert.equal(null, err)
-//   if (debug) console.log("Connected to mongodb/coolname")
-//   mdb = db
-// })
+function main() {
+  var dirArg = argv._.length >= 1
+             ? argv._[0]
+             : process.cwd()
+  dirArg = path.resolve(process.cwd(), dirArg)
 
-var dirArg = argv._.length >= 1
-           ? argv._[0]
-           : process.cwd()
-dirArg = path.resolve(process.cwd(), dirArg)
+  if (debug) {
+    console.log("Beginning recursive descent from " + dirArg)
+  }
 
-if (debug) {
-  console.log("Beginning recursive descent from " + dirArg)
+  dir.files(dirArg, handleFiles)
 }
-
-dir.files(dirArg, handleFiles)
 
 ///////////////
 // Functions //
@@ -62,7 +57,7 @@ dir.files(dirArg, handleFiles)
  * to a mongodb database.
  */
 function handleFiles(err, files) {
-  if (err) throw err
+  assert.equal(null, err)
   files.forEach(function (file) {
     fs.lstat(file, function (err, stats) {
       if (err) throw err
@@ -71,6 +66,7 @@ function handleFiles(err, files) {
       if (ext === ".mp3" || ext === ".flac") handleMedia(file)
     })
   })
+  //db.close()
 }
 
 /**
@@ -78,9 +74,13 @@ function handleFiles(err, files) {
  */
 function handleMedia(file) {
   var parser = mm(fs.createReadStream(file), function (err, metadata) {
-    if (err) throw err
-    console.log(metadata)
+    assert.equal(null, err)
     metadata.filepath = file
-    // coll.insertOne(metadata)
+    if (debug) console.log(metadata)
+    coll.insertOne(metadata, function (err, r) {
+      assert.equal(null, err)
+      assert.equal(1, r.insertedCount)
+      if (debug) console.log("In callback")
+    })
   })
 }
