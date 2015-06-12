@@ -17,6 +17,7 @@ var assert = require("assert")
 // Main //
 //////////
 
+console.time("import")
 var argv = parseArgs( process.argv.slice(2)
                     , { "boolean": [ "d", "debug" ] }
                     )
@@ -52,12 +53,16 @@ function main() {
 // Functions //
 ///////////////
 
+var numFiles
+var currNum = 0
+
 /**
  * Iterates through `files` and adds each MP3 and FLAC file
  * to a mongodb database.
  */
 function handleFiles(err, files) {
   assert.equal(null, err)
+  numFiles = files.length
   files.forEach(function (file) {
     fs.lstat(file, function (err, stats) {
       if (err) throw err
@@ -81,6 +86,11 @@ function handleMedia(file) {
       assert.equal(null, err)
       assert.equal(1, r.insertedCount)
       if (debug) console.log("In callback")
+      currNum++
+      if (currNum === numFiles) {
+        console.timeEnd("import")
+        db.close()
+      }
     })
   })
 }
