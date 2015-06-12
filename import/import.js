@@ -22,13 +22,16 @@ var assert = require("assert")
 //////////
 
 var argv = parseArgs( process.argv.slice(2)
-                    , { "boolean": [ "d", "debug" ]
-                      , "time": [ "t", "time" ]
+                    , { alias: { d: "debug"
+                               , c: "count"
+                               , t: "time"
+                               }
                       }
                     )
 
-var debug = argv["d"] !== false || argv["debug"] !== false
-  , time = argv["t"] !== false || argv["time"] !== false
+var debug = argv.d === true
+  , time = argv.t === true
+  , count = argv.c === true
 if (debug) console.log("Debug enabled.")
 if (time) console.time("exec")
 
@@ -45,9 +48,8 @@ mongodb.MongoClient.connect(url, function (err, database) {
 
 function main() {
   var dirArg = argv._.length >= 1
-             ? argv._[0]
+             ? path.resolve(process.cwd(), argv._[0])
              : process.cwd()
-  dirArg = path.resolve(process.cwd(), dirArg)
 
   if (debug) {
     console.log("Beginning recursive descent from " + dirArg)
@@ -64,29 +66,53 @@ function handleFiles() {
   var numFiles
     , currNum = 0
 
+  /**
+   * Iterates an array of filepaths and adds the MP3 and FLAC files
+   * to the collection. We return this function from the closure.
+   */
   function fileIterator(err, files) {
     assert.equal(null, err)
+    if (count) console.log(files.length + " total files")
     numFiles = files.length
+    files = files.filter(function (file) {
+      var keep = fs.lstatSync(file).isFile()
+              && ( path.extname(file) === ".mp3"
+                || path.extname(file) === ".flac"
+                 )
+      if (debug) console.log(file + ": " + keep)
+      return keep
+    })
+
+    if (count) console.log(files.length + " media files")
+
     files.forEach(function (file) {
-      fs.lstat(file, function (err, stats) {
-        assert.equal(null, err)
-        if (!stats.isFile()) return
-        var ext = path.extname(file)
-        if (ext === ".mp3" || ext === ".flac") handleMedia(file)
-      })
+      handleMedia(file)
     })
   }
 
+  /**
+   * Takes an MP3 or FLAC file and adds it to the collection.
+   */
   function handleMedia(file) {
     var parser = mm(fs.createReadStream(file), function (err, metadata) {
       assert.equal(null, err)
       metadata.filepath = file
       if (debug) console.log(metadata)
+      if (count) {
+        currNum++
+        if (debug) console.log("Visited file " + currNum + ": " + file)
+        if (currNum === numFiles) {
+          if (time) console.timeEnd("exec")
+          db.close()
+          process.exit(0)
+        }
+        return
+      }
       coll.insertOne(metadata, function (err, r) {
         assert.equal(null, err)
         assert.equal(1, r.insertedCount)
-        if (debug) console.log("In callback")
         currNum++
+        if (debug) console.log("Inserted record " + currNum + ": " + file)
         if (currNum === numFiles) {
           if (time) console.timeEnd("exec")
           db.close()
