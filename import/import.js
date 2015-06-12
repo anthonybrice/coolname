@@ -1,6 +1,9 @@
 /**
  * File: import/import.js
- * Desc: A program that reads and imports media files into mongodb
+ *
+ * Desc: A program that reads and imports media files into mongodb. Space
+ * requirement scales linearly on the number of files below the passed
+ * directory, but it's just to make an array of the filenames.
  */
 
 "use strict"
@@ -53,7 +56,17 @@ function main() {
 // Functions //
 ///////////////
 
+/**
+ * The number of files we expect to insert.
+ */
 var numFiles
+
+/**
+ * The current number of files inserted. handleMedia() uses this to determine if
+ * it should close the connections or not. This seems to me a pretty ugly
+ * solution, but I see no other way while keeping synchronous filesystem access,
+ * which is essential to a decent exec time.
+ */
 var currNum = 0
 
 /**
@@ -65,13 +78,12 @@ function handleFiles(err, files) {
   numFiles = files.length
   files.forEach(function (file) {
     fs.lstat(file, function (err, stats) {
-      if (err) throw err
+      assert.equal(null, err)
       if (!stats.isFile()) return
       var ext = path.extname(file)
       if (ext === ".mp3" || ext === ".flac") handleMedia(file)
     })
   })
-  //db.close()
 }
 
 /**
