@@ -46,3 +46,6 @@ node_modules
 
 # Music directory
 music
+
+# the restheart jar
+app/restheart.jar

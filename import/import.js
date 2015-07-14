@@ -35,14 +35,14 @@ var debug = argv.d === true
 if (debug) console.log("Debug enabled.")
 if (time) console.time("exec")
 
-var url = "mongodb://localhost"
+var url = "mongodb://localhost/music"
   , db
   , coll
 mongodb.MongoClient.connect(url, function (err, database) {
   assert.equal(null, err)
-  if (debug) console.log("Connected to coolname.")
+  if (debug) console.log("Connected to database.")
   db = database
-  coll = db.collection("coolname")
+  coll = db.collection("songs")
   main()
 })
 
@@ -73,16 +73,17 @@ function handleFiles() {
   function fileIterator(err, files) {
     assert.equal(null, err)
     if (count) console.log(files.length + " total files")
-    numFiles = files.length
     files = files.filter(function (file) {
       var keep = fs.lstatSync(file).isFile()
               && ( path.extname(file) === ".mp3"
                 || path.extname(file) === ".flac"
+                || path.extname(file) === ".m4a"
                  )
       if (debug) console.log(file + ": " + keep)
       return keep
     })
 
+    numFiles = files.length
     if (count) console.log(files.length + " media files")
 
     files.forEach(function (file) {

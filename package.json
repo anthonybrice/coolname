@@ -1,14 +1,14 @@
 {
   "name": "coolname",
   "version": "0.0.1",
-  "description": "",
   "main": "index.js",
   "dependencies": {
     "argp": "^1.0.4",
-    "musicmetadata": "^1.0.1",
+    "express": "^4.13.1",
     "minimist": "^1.1.1",
-    "node-dir": "^0.1.8",
-    "mongodb": "^2.0.33"
+    "mongodb": "^2.0.36",
+    "musicmetadata": "^1.0.1",
+    "node-dir": "^0.1.8"
   },
   "devDependencies": {},
   "scripts": {
@@ -23,5 +23,6 @@
   "bugs": {
     "url": "https://github.com/anthonybrice/coolname/issues"
   },
-  "homepage": "https://github.com/anthonybrice/coolname#readme"
+  "homepage": "https://github.com/anthonybrice/coolname#readme",
+  "description": ""
 }
