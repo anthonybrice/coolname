@@ -21,7 +21,7 @@ module.exports = function (grunt) {
              , tasks: ["jshint", "qunit"]
              }
     , bower_concat:
-      { options: { separator: ";" }
+      { options: { separator: ";\n" }
       , all: { dest: "dist/_bower.js"
              , cssDest: "dist/_bower.css"
              , mainFiles: { bootstrap: [ "dist/css/bootstrap.min.css"
@@ -30,6 +30,7 @@ module.exports = function (grunt) {
                           , angular: "angular.min.js"
                           , jquery: "dist/jquery.min.js"
                           }
+             , dependencies: { "angular": "jquery" }
              }
       }
     , clean: { dist: ["dist/**/*", "!dist/restheart.jar"] }
@@ -49,6 +50,9 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-bower-concat")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-copy")
+  grunt.registerTask( "coolname-restheart"
+                    , "Compile restheart and move its jar to dist"
+                    , coolnameRestheart)
 
   grunt.registerTask("test", ["jshint"])
   grunt.registerTask("default", [ "jshint"
@@ -57,4 +61,8 @@ module.exports = function (grunt) {
                                 , "uglify"
                                 , "bower_concat"
                                 ])
+
+  function coolnameRestheart() {
+    var child_process = require("child_process")
+  }
 }
