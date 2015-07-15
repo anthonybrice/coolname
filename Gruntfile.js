@@ -20,17 +20,19 @@ module.exports = function (grunt) {
     , watch: { files: ["<%= jshint.files %>"]
              , tasks: ["jshint", "qunit"]
              }
-    , bower_concat: { options: { separator: ";" }
-                    , all: { dest: "dist/_bower.js"
-                           , cssDest: "dist/_bower.css"
-                           , mainFiles: { bootstrap: [ "dist/css/bootstrap.min.css"
-                                                     , "dist/js/bootstrap.min.js"
-                                                     ]
-                                        , angular: "angular.min.js"
-                                        , jquery: "dist/jquery.min.js"
-                                        }
-                           }
-                    }
+    , bower_concat:
+      { options: { separator: ";" }
+      , all: { dest: "dist/_bower.js"
+             , cssDest: "dist/_bower.css"
+             , mainFiles: { bootstrap: [ "dist/css/bootstrap.min.css"
+                                       , "dist/js/bootstrap.min.js"
+                                       ]
+                          , angular: "angular.min.js"
+                          , jquery: "dist/jquery.min.js"
+                          }
+             }
+      }
+    , clean: { dist: ["dist/**/*", "!dist/restheart.jar"] }
     })
 
   grunt.loadNpmTasks("grunt-contrib-uglify")
@@ -38,6 +40,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-contrib-watch")
   grunt.loadNpmTasks("grunt-contrib-concat")
   grunt.loadNpmTasks("grunt-bower-concat")
+  grunt.loadNpmTasks("grunt-contrib-clean")
 
   grunt.registerTask("test", ["jshint"])
   grunt.registerTask("default", ["jshint", "concat", "uglify", "bower_concat"])
