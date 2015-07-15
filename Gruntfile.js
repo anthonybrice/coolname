@@ -33,6 +33,13 @@ module.exports = function (grunt) {
              }
       }
     , clean: { dist: ["dist/**/*", "!dist/restheart.jar"] }
+    , copy: { restheart: { files: [ { expand: true
+                                    , src: ["etc/*"]
+                                    , dest: "dist/"
+                                    }
+                                  ]
+                         }
+            }
     })
 
   grunt.loadNpmTasks("grunt-contrib-uglify")
@@ -41,7 +48,13 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-contrib-concat")
   grunt.loadNpmTasks("grunt-bower-concat")
   grunt.loadNpmTasks("grunt-contrib-clean")
+  grunt.loadNpmTasks("grunt-contrib-copy")
 
   grunt.registerTask("test", ["jshint"])
-  grunt.registerTask("default", ["jshint", "concat", "uglify", "bower_concat"])
+  grunt.registerTask("default", [ "jshint"
+                                , "copy"
+                                , "concat"
+                                , "uglify"
+                                , "bower_concat"
+                                ])
 }
