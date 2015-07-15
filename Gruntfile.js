@@ -40,6 +40,13 @@ module.exports = function (grunt) {
                                     }
                                   ]
                          }
+            , html: { files: [ { expand: true
+                               , cwd: "src/"
+                               , src: ["**/*.html"]
+                               , dest: "dist/"
+                               }
+                             ]
+                    }
             }
     })
 
@@ -50,19 +57,13 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-bower-concat")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-copy")
-  grunt.registerTask( "coolname-restheart"
-                    , "Compile restheart and move its jar to dist"
-                    , coolnameRestheart)
 
   grunt.registerTask("test", ["jshint"])
   grunt.registerTask("default", [ "jshint"
+                                , "clean"
                                 , "copy"
                                 , "concat"
                                 , "uglify"
                                 , "bower_concat"
                                 ])
-
-  function coolnameRestheart() {
-    var child_process = require("child_process")
-  }
 }
